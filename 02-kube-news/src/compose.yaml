@@ -1,0 +1,39 @@
+networks:
+  aulao:
+    driver: bridge
+
+volumes:
+  aulao_db:
+
+services:
+  postgre:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: pg1234
+      POSTGRES_USER: kubenews
+      POSTGRES_DB: kubenews
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - aulao_db:/var/lib/postgresql/data
+    networks:
+      - aulao
+    ports:
+      - 5432:5432
+
+  kubenews:
+    image: wcruzbr/kubenews-aulao:v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_PASSWORD: pg1234
+      DB_USERNAME: kubenews
+      DB_DATABASE: kubenews
+      DB_HOST: postgre
+      DB_PORT: 5432
+    volumes:
+      - aulao_db:/var/lib/postgresql/data
+    networks:
+      - aulao
+    ports:
+      - 8181:8080
